@@ -134,7 +134,7 @@ input:focus { border-color:var(--gold); }
     <div class="suc-icon" id="suc-icon">🎉</div>
     <div class="suc-title" id="suc-title">WELCOME!</div>
     <p class="suc-sub" id="suc-sub">You are now logged in.</p>
-    <a href="index.html" class="go-btn">GO TO WEBSITE ⛽</a>
+    <a href="index.html" class="go-btn" id="go-btn">GO TO WEBSITE ⛽</a>
   </div>
 
   <!-- MAIN -->
@@ -338,6 +338,14 @@ function showSuccess(role, name) {
   document.getElementById("suc-icon").textContent  = icons[role];
   document.getElementById("suc-title").textContent = titles[role];
   document.getElementById("suc-sub").textContent   = "Logged in as " + role + " — " + name;
+  // Employee goes to CrewFlow, customer goes to main website
+  if(role === "employee") {
+    document.getElementById("go-btn").href = "https://crewflow.teddysplumgrove.com/login";
+    document.getElementById("go-btn").textContent = "🚀 GO TO EMPLOYEE PORTAL";
+  } else {
+    document.getElementById("go-btn").href = "index.html";
+    document.getElementById("go-btn").textContent = "GO TO WEBSITE ⛽";
+  }
 }
 
 // ── MAIN LOGIN ──
@@ -426,3 +434,4 @@ document.addEventListener("keydown", function(e){ if(e.key==="Enter") handleActi
 </script>
 </body>
 </html>
+
