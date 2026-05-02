@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teddy's Taco Shop Game 🌮</title>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Nunito', sans-serif;
+  background: linear-gradient(160deg, #FFE4B5 0%, #FFD700 40%, #FFA500 100%);
+  min-height: 100vh;
+  overflow: hidden;
+}
+.game-container {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+canvas {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+}
+.ui {
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 20px;
+  z-index: 100;
+}
+.location-btn {
+  font-family: 'Bangers', cursive;
+  font-size: 20px;
+  letter-spacing: 2px;
+  padding: 16px 24px;
+  border-radius: 12px;
+  border: 3px solid #333;
+  background: white;
+  color: #333;
+  cursor: pointer;
+  box-shadow: 0 6px 0 #333;
+  transition: all 0.15s;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+.location-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 0 #333;
+}
+.location-btn.active {
+  background: #FF6B35;
+  border-color: #CC2222;
+  color: white;
+  box-shadow: 0 6px 0 #CC2222;
+}
+.score-display {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: white;
+  padding: 16px 24px;
+  border-radius: 12px;
+  font-family: 'Bangers', cursive;
+  font-size: 20px;
+  letter-spacing: 2px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+.order-display {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background: white;
+  padding: 16px 24px;
+  border-radius: 12px;
+  font-family: 'Bangers', cursive;
+  font-size: 16px;
+  letter-spacing: 1px;
+  max-width: 400px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+</style>
+</head>
+<body>
+
+<div class="game-container">
+  <canvas id="gameCanvas"></canvas>
+</div>
+
+<div class="order-display" id="orderDisplay">
+  Loading order...
+</div>
+
+<div class="score-display" id="scoreDisplay">
+  Score: 0 / 8
+</div>
+
+<div class="ui" id="ui">
+  <button class="location-btn active" id="btn-prep" onclick="goToLocation('prep')">
+    🥘 PREP STATION
+  </button>
+  <button class="location-btn" id="btn-assembly" onclick="goToLocation('assembly')">
+    🌮 ASSEMBLY LINE
+  </button>
+  <button class="location-btn" id="btn-cashier" onclick="goToLocation('cashier')">
+    💳 CASHIER
+  </button>
+</div>
+
+<script>
+var canvas = document.getElementById('gameCanvas');
+var ctx = canvas.getContext('2d');
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+window.addEventListener('resize', () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+});
+
+var game = {
+  location: 'prep',
+  orders: [
+    { type: 'taco', tortilla: 'corn', toppings: ['meat', 'lettuce', 'tomato'], message: '🌮 Corn taco with meat, lettuce & tomato!' },
+    { type: 'taco', tortilla: 'flour', toppings: ['chicken', 'guac', 'cheese'], message: '🌮 Flour taco with chicken, guac & cheese!' },
+    { type: 'quesadilla', tortilla: 'flour', toppings: ['cheese', 'meat', 'onions'], message: '🧀 Quesadilla with cheese, meat & onions!' },
+    { type: 'burrito', tortilla: 'flour', toppings: ['meat', 'beans', 'rice', 'cheese'], message: '🌯 Burrito with meat, beans, rice & cheese!' },
+    { type: 'taco', tortilla: 'corn', toppings: ['fish', 'guac', 'cilantro'], message: '🌮 Fish taco with guac & cilantro!' },
+    { type: 'quesadilla', tortilla: 'corn', toppings: ['chicken', 'cheese', 'peppers'], message: '🧀 Corn quesadilla with chicken, cheese & peppers!' },
+    { type: 'burrito', tortilla: 'flour', toppings: ['veggie', 'beans', 'guac'], message: '🌯 Veggie burrito with beans & guac!' },
+    { type: 'taco', tortilla: 'flour', toppings: ['meat', 'tomato', 'sour cream', 'salsa'], message: '🌮 Flour taco with meat, tomato, sour cream & salsa!' },
+  ],
+  currentOrder: null,
+  currentFood: { type: 'taco', tortilla: 'corn', toppings: [] },
+  score: 0,
+  orderIndex: 0,
+  handX: canvas.width / 2,
+  handY: canvas.height / 2,
+  mouseX: canvas.width / 2,
+  mouseY: canvas.height / 2,
+};
+
+function loadNewOrder() {
+  if(game.orderIndex >= game.orders.length) {
+    document.getElementById('orderDisplay').textContent = '✅ All orders complete! Score: ' + game.score + ' / 8';
+    return;
+  }
+  game.currentOrder = game.orders[game.orderIndex];
+  game.currentFood = { type: 'taco', tortilla: 'corn', toppings: [] };
+  document.getElementById('orderDisplay').textContent = game.currentOrder.message;
+}
+
+document.addEventListener('mousemove', (e) => {
+  game.mouseX = e.clientX;
+  game.mouseY = e.clientY;
+});
+
+function goToLocation(loc) {
+  game.location = loc;
+  document.querySelectorAll('.location-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('btn-' + loc).classList.add('active');
+}
+
+function drawPrepStation() {
+  var grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+  grad.addColorStop(0, '#FFD700');
+  grad.addColorStop(1, '#FFA500');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.fillStyle = '#8B4513';
+  ctx.fillRect(0, canvas.height * 0.65, canvas.width, canvas.height * 0.35);
+
+  ctx.font = 'bold 28px Bangers';
+  ctx.fillStyle = '#333';
+  ctx.textAlign = 'center';
+  ctx.fillText('🥘 PREP STATION', canvas.width / 2, canvas.height * 0.1);
+
+  // FOOD TYPE
+  ctx.fillStyle = '#666';
+  ctx.font = 'bold 20px Bangers';
+  ctx.fillText('Pick Food Type:', canvas.width * 0.25, canvas.height * 0.2);
+
+  var foodTypes = ['taco', 'quesadilla', 'burrito'];
+  var foodEmojis = { taco: '🌮', quesadilla: '🧀', burrito: '🌯' };
+  
+  for(var i = 0; i < foodTypes.length; i++) {
+    var btnX = canvas.width * 0.1 + i * 180;
+    var btnY = canvas.height * 0.32;
+    var type = foodTypes[i];
+    var isActive = game.currentFood.type === type;
+    
+    ctx.fillStyle = isActive ? '#FF6B35' : '#ddd';
+    ctx.fillRect(btnX - 55, btnY - 30, 110, 60);
+    ctx.strokeStyle = isActive ? '#CC2222' : '#999';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(btnX - 55, btnY - 30, 110, 60);
+    
+    ctx.fillStyle = '#333';
+    ctx.font = 'bold 28px';
+    ctx.textAlign = 'center';
+    ctx.fillText(foodEmojis[type], btnX, btnY - 8);
+    ctx.font = 'bold 13px Bangers';
+    ctx.fillText(type.toUpperCase(), btnX, btnY + 20);
+  }
+
+  // TORTILLA
+  ctx.fillStyle = '#666';
+  ctx.font = 'bold 20px Bangers';
+  ctx.textAlign = 'center';
+  ctx.fillText('Pick Tortilla:', canvas.width * 0.75, canvas.height * 0.2);
+
+  var tortillas = ['corn', 'flour'];
+  var tortillaEmojis = { corn: '🌽', flour: '🌾' };
+  
+  for(var i = 0; i < tortillas.length; i++) {
+    var btnX = canvas.width * 0.65 + i * 200;
+    var btnY = canvas.height * 0.32;
+    var tort = tortillas[i];
+    var isActive = game.currentFood.tortilla === tort;
+    
+    ctx.fillStyle = isActive ? '#FF6B35' : '#ddd';
+    ctx.fillRect(btnX - 55, btnY - 30, 110, 60);
+    ctx.strokeStyle = isActive ? '#CC2222' : '#999';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(btnX - 55, btnY - 30, 110, 60);
+    
+    ctx.fillStyle = '#333';
+    ctx.font = 'bold 28px';
+    ctx.textAlign = 'center';
+    ctx.fillText(tortillaEmojis[tort], btnX, btnY - 8);
+    ctx.font = 'bold 13px Bangers';
+    ctx.fillText(tort.toUpperCase(), btnX, btnY + 20);
+  }
+
+  ctx.font = 'bold 18px Bangers';
+  ctx.fillStyle = '#333';
+  ctx.textAlign = 'center';
+  ctx.fillText('Current: ' + game.currentFood.tortilla.toUpperCase() + ' ' + game.currentFood.type.toUpperCase(), canvas.width / 2, canvas.height * 0.55);
+
+  game.handX += (game.mouseX - game.handX) * 0.2;
+  game.handY += (game.mouseY - game.handY) * 0.2;
+  drawHands(game.handX, game.handY);
+
+  ctx.font = 'bold 16px Bangers';
+  ctx.fillStyle = '#333';
+  ctx.fillText('Select & go to assembly!', canvas.width / 2, canvas.height * 0.95);
+}
+
+function drawAssemblyLine() {
+  var grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+  grad.addColorStop(0, '#FFE4B5');
+  grad.addColorStop(1, '#FFFACD');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.font = 'bold 26px Bangers';
+  ctx.fillStyle = '#333';
+  ctx.textAlign = 'center';
+  ctx.fillText('🌮 ASSEMBLY LINE - Add Toppings!', canvas.width / 2, canvas.height * 0.08);
+
+  // BIG FOOD PREVIEW IN CENTER
+  var foodX = canvas.width * 0.25;
+  var foodY = canvas.height * 0.45;
+  drawLargeFood(foodX, foodY, game.currentFood, 150);
+
+  // TOPPINGS ON RIGHT
+  ctx.fillStyle = '#666';
+  ctx.font = 'bold 18px Bangers';
+  ctx.textAlign = 'center';
+  ctx.fillText('Click to Add:', canvas.width * 0.8, canvas.height * 0.08);
+
+  var toppingButtons = [
+    { name: 'meat', emoji: '🥩', label: 'Meat' },
+    { name: 'chicken', emoji: '🍗', label: 'Chicken' },
+    { name: 'fish', emoji: '🐟', label: 'Fish' },
+    { name: 'veggie', emoji: '🥕', label: 'Veggie' },
+    { name: 'beans', emoji: '🫘', label: 'Beans' },
+    { name: 'rice', emoji: '🍚', label: 'Rice' },
+    { name: 'guac', emoji: '🥑', label: 'Guac' },
+    { name: 'cheese', emoji: '🧀', label: 'Cheese' },
+    { name: 'lettuce', emoji: '🥬', label: 'Lettuce' },
+    { name: 'tomato', emoji: '🍅', label: 'Tomato' },
+    { name: 'onions', emoji: '🧅', label: 'Onions' },
+    { name: 'cilantro', emoji: '🌿', label: 'Cilantro' },
+    { name: 'salsa', emoji: '🌶️', label: 'Salsa' },
+    { name: 'sour cream', emoji: '🍦', label: 'Sour C.' },
+    { name: 'peppers', emoji: '🫑', label: 'Peppers' },
+  ];
+
+  var currentToppings = game.currentFood.toppings;
+  
+  for(var i = 0; i < toppingButtons.length; i++) {
+    var topping = toppingButtons[i];
+    var row = Math.floor(i / 3);
+    var col = i % 3;
+    
+    var btnX = canvas.width * 0.62 + col * 120;
+    var btnY = canvas.height * 0.18 + row * 130;
+    var isActive = currentToppings.indexOf(topping.name) !== -1;
+
+    ctx.fillStyle = isActive ? '#FF6B35' : '#E8E8E8';
+    ctx.fillRect(btnX - 45, btnY - 45, 90, 90);
+    ctx.strokeStyle = isActive ? '#CC2222' : '#999';
+    ctx.lineWidth = isActive ? 4 : 2;
+    ctx.strokeRect(btnX - 45, btnY - 45, 90, 90);
+
+    ctx.fillStyle = '#333';
+    ctx.font = 'bold 32px';
+    ctx.textAlign = 'center';
+    ctx.fillText(topping.emoji, btnX, btnY - 12);
+    ctx.font = 'bold 11px Bangers';
+    ctx.fillText(topping.label, btnX, btnY + 25);
+  }
+
+  game.handX += (game.mouseX - game.handX) * 0.2;
+  game.handY += (game.mouseY - game.handY) * 0.2;
+  drawHands(game.handX, game.handY);
+
+  ctx.font = 'bold 14px Bangers';
+  ctx.fillStyle = '#333';
+  ctx.textAlign = 'center';
+  ctx.fillText('Watch your food fill up!', canvas.width / 2, canvas.height * 0.98);
+}
+
+function drawCashier() {
+  var grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+  grad.addColorStop(0, '#FFE4B5');
+  grad.addColorStop(1, '#FFA500');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.fillStyle = '#333';
+  ctx.fillRect(canvas.width * 0.2, canvas.height * 0.35, canvas.width * 0.6, canvas.height * 0.35);
+
+  ctx.fillStyle = '#111';
+  ctx.fillRect(canvas.width * 0.3, canvas.height * 0.45, canvas.width * 0.4, canvas.height * 0.09);
+  ctx.fillStyle = '#0F0';
+  ctx.font = 'bold 20px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('TOTAL: $13.99', canvas.width / 2, canvas.height * 0.52);
+
+  var foodX = canvas.width / 2;
+  var foodY = canvas.height * 0.22;
+  drawLargeFood(foodX, foodY, game.currentFood, 180);
+
+  var btnX = canvas.width / 2;
+  var btnY = canvas.height * 0.8;
+  var correct = checkOrder();
+
+  ctx.fillStyle = correct ? '#00AA00' : '#FF6B6B';
+  ctx.fillRect(btnX - 130, btnY - 45, 260, 90);
+  ctx.strokeStyle = '#000';
+  ctx.lineWidth = 4;
+  ctx.strokeRect(btnX - 130, btnY - 45, 260, 90);
+
+  ctx.fillStyle = '#FFF';
+  ctx.font = 'bold 32px Bangers';
+  ctx.textAlign = 'center';
+  ctx.fillText(correct ? '✅ CORRECT!' : '❌ SERVE', btnX, btnY + 18);
+
+  game.handX += (game.mouseX - game.handX) * 0.2;
+  game.handY += (game.mouseY - game.handY) * 0.2;
+  drawHands(game.handX, game.handY);
+}
+
+function drawLargeFood(x, y, food, size) {
+  if(food.type === 'taco') {
+    // Tortilla shell (folded)
+    var tortColor = food.tortilla === 'corn' ? '#FFD700' : '#D4A574';
+    
+    // Bottom part
+    ctx.fillStyle = tortColor;
+    ctx.beginPath();
+    ctx.ellipse(x, y + size * 0.3, size * 0.7, size * 0.25, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#8B6914';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Top folded part
+    ctx.fillStyle = tortColor;
+    ctx.beginPath();
+    ctx.ellipse(x, y - size * 0.15, size * 0.7, size * 0.4, 0.2, 0, Math.PI);
+    ctx.fill();
+    ctx.strokeStyle = '#8B6914';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Draw toppings INSIDE the taco
+    drawToppingsInTaco(x, y, food.toppings, size);
+
+  } else if(food.type === 'quesadilla') {
+    // Flat square tortilla
+    var tortColor = food.tortilla === 'corn' ? '#FFD700' : '#D4A574';
+    
+    ctx.fillStyle = tortColor;
+    ctx.beginPath();
+    ctx.roundRect(x - size * 0.6, y - size * 0.5, size * 1.2, size, 20);
+    ctx.fill();
+    ctx.strokeStyle = '#8B6914';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    // Draw filling inside
+    drawToppingsInQuesadilla(x, y, food.toppings, size);
+
+  } else if(food.type === 'burrito') {
+    // Wrapped burrito
+    var tortColor = food.tortilla === 'corn' ? '#FFD700' : '#D4A574';
+    
+    ctx.fillStyle = tortColor;
+    ctx.beginPath();
+    ctx.roundRect(x - size * 0.5, y - size * 0.35, size, size * 0.7, 15);
+    ctx.fill();
+    ctx.strokeStyle = '#8B6914';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    // Draw filling visible at edges
+    drawToppingsInBurrito(x, y, food.toppings, size);
+  }
+}
+
+function drawToppingsInTaco(x, y, toppings, size) {
+  var toppingList = [
+    { name: 'meat', emoji: '🥩', color: '#8B4513' },
+    { name: 'chicken', emoji: '🍗', color: '#FFB6C1' },
+    { name: 'fish', emoji: '🐟', color: '#87CEEB' },
+    { name: 'veggie', emoji: '🥕', color: '#90EE90' },
+    { name: 'beans', emoji: '🫘', color: '#654321' },
+    { name: 'rice', emoji: '🍚', color: '#FFFACD' },
+    { name: 'guac', emoji: '🥑', color: '#6B8E23' },
+    { name: 'cheese', emoji: '🧀', color: '#FFD700' },
+    { name: 'lettuce', emoji: '🥬', color: '#90EE90' },
+    { name: 'tomato', emoji: '🍅', color: '#FF6347' },
+    { name: 'onions', emoji: '🧅', color: '#FFE4B5' },
+    { name: 'cilantro', emoji: '🌿', color: '#228B22' },
+    { name: 'salsa', emoji: '🌶️', color: '#FF4500' },
+    { name: 'sour cream', emoji: '🍦', color: '#FFFACD' },
+    { name: 'peppers', emoji: '🫑', color: '#FF6347' },
+  ];
+
+  for(var i = 0; i < toppings.length; i++) {
+    var topping = toppings[i];
+    var angle = (i / Math.max(toppings.length, 1)) * Math.PI * 1.5 + Math.PI * 0.25;
+    var dist = size * 0.15 + (i % 3) * size * 0.08;
+    
+    var toX = x + Math.cos(angle) * dist;
+    var toY = y - size * 0.05 + Math.sin(angle) * dist;
+    
+    var toppingData = toppingList.find(t => t.name === topping);
+    if(toppingData) {
+      ctx.fillStyle = toppingData.color;
+      ctx.beginPath();
+      ctx.arc(toX, toY, size * 0.09, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+  }
+}
+
+function drawToppingsInQuesadilla(x, y, toppings, size) {
+  var toppingColors = {
+    meat: '#8B4513', chicken: '#FFB6C1', fish: '#87CEEB', veggie: '#90EE90',
+    beans: '#654321', rice: '#FFFACD', guac: '#6B8E23', cheese: '#FFD700',
+    lettuce: '#90EE90', tomato: '#FF6347', onions: '#FFE4B5', cilantro: '#228B22',
+    salsa: '#FF4500', 'sour cream': '#FFFACD', peppers: '#FF6347'
+  };
+
+  var cols = 3;
+  var rows = Math.ceil(toppings.length / cols);
+  
+  for(var i = 0; i < toppings.length; i++) {
+    var col = i % cols;
+    var row = Math.floor(i / cols);
+    
+    var toX = x - size * 0.35 + col * size * 0.35;
+    var toY = y - size * 0.25 + row * size * 0.25;
+    
+    ctx.fillStyle = toppingColors[toppings[i]] || '#FFD700';
+    ctx.beginPath();
+    ctx.arc(toX, toY, size * 0.12, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function drawToppingsInBurrito(x, y, toppings, size) {
+  var toppingColors = {
+    meat: '#8B4513', chicken: '#FFB6C1', fish: '#87CEEB', veggie: '#90EE90',
+    beans: '#654321', rice: '#FFFACD', guac: '#6B8E23', cheese: '#FFD700',
+    lettuce: '#90EE90', tomato: '#FF6347', onions: '#FFE4B5', cilantro: '#228B22',
+    salsa: '#FF4500', 'sour cream': '#FFFACD', peppers: '#FF6347'
+  };
+
+  // Show filling peeking out at edges
+  for(var i = 0; i < toppings.length; i++) {
+    var angle = (i / toppings.length) * Math.PI * 2;
+    var dist = size * 0.5;
+    
+    var toX = x + Math.cos(angle) * dist;
+    var toY = y + Math.sin(angle) * (dist * 0.6);
+    
+    ctx.fillStyle = toppingColors[toppings[i]] || '#FFD700';
+    ctx.beginPath();
+    ctx.arc(toX, toY, size * 0.1, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function checkOrder() {
+  if(!game.currentOrder) return false;
+  if(game.currentFood.type !== game.currentOrder.type) return false;
+  if(game.currentFood.tortilla !== game.currentOrder.tortilla) return false;
+  var myToppings = game.currentFood.toppings.slice().sort();
+  var orderToppings = game.currentOrder.toppings.slice().sort();
+  if(JSON.stringify(myToppings) !== JSON.stringify(orderToppings)) return false;
+  return true;
+}
+
+function drawHands(x, y) {
+  ctx.fillStyle = '#FDBCB4';
+  ctx.beginPath();
+  ctx.ellipse(x - 40, y + 20, 30, 40, 0.2, 0, Math.PI * 2);
+  ctx.fill();
+
+  for(var i = 0; i < 3; i++) {
+    ctx.beginPath();
+    ctx.ellipse(x - 60 + i * 15, y - 20, 8, 25, -0.3, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.fillStyle = '#FDBCB4';
+  ctx.beginPath();
+  ctx.ellipse(x + 40, y + 20, 30, 40, -0.2, 0, Math.PI * 2);
+  ctx.fill();
+
+  for(var i = 0; i < 3; i++) {
+    ctx.beginPath();
+    ctx.ellipse(x + 60 - i * 15, y - 20, 8, 25, 0.3, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+canvas.addEventListener('click', (e) => {
+  var rect = canvas.getBoundingClientRect();
+  var clickX = e.clientX - rect.left;
+  var clickY = e.clientY - rect.top;
+
+  if(game.location === 'prep') {
+    var foodTypes = ['taco', 'quesadilla', 'burrito'];
+    for(var i = 0; i < foodTypes.length; i++) {
+      var btnX = canvas.width * 0.1 + i * 180;
+      var btnY = canvas.height * 0.32;
+      if(clickX > btnX - 55 && clickX < btnX + 55 &&
+         clickY > btnY - 30 && clickY < btnY + 30) {
+        game.currentFood.type = foodTypes[i];
+      }
+    }
+
+    var tortillas = ['corn', 'flour'];
+    for(var i = 0; i < tortillas.length; i++) {
+      var btnX = canvas.width * 0.65 + i * 200;
+      var btnY = canvas.height * 0.32;
+      if(clickX > btnX - 55 && clickX < btnX + 55 &&
+         clickY > btnY - 30 && clickY < btnY + 30) {
+        game.currentFood.tortilla = tortillas[i];
+      }
+    }
+  } else if(game.location === 'assembly') {
+    var toppingButtons = [
+      'meat', 'chicken', 'fish', 'veggie', 'beans', 'rice',
+      'guac', 'cheese', 'lettuce', 'tomato', 'onions', 'cilantro',
+      'salsa', 'sour cream', 'peppers'
+    ];
+
+    for(var i = 0; i < toppingButtons.length; i++) {
+      var topping = toppingButtons[i];
+      var row = Math.floor(i / 3);
+      var col = i % 3;
+      
+      var btnX = canvas.width * 0.62 + col * 120;
+      var btnY = canvas.height * 0.18 + row * 130;
+
+      if(clickX > btnX - 45 && clickX < btnX + 45 &&
+         clickY > btnY - 45 && clickY < btnY + 45) {
+        var idx = game.currentFood.toppings.indexOf(topping);
+        if(idx === -1) {
+          game.currentFood.toppings.push(topping);
+        } else {
+          game.currentFood.toppings.splice(idx, 1);
+        }
+      }
+    }
+  } else if(game.location === 'cashier') {
+    var btnX = canvas.width / 2;
+    var btnY = canvas.height * 0.8;
+    if(clickX > btnX - 130 && clickX < btnX + 130 &&
+       clickY > btnY - 45 && clickY < btnY + 45) {
+      if(checkOrder()) {
+        game.score++;
+        alert('✅ CORRECT! Score: ' + game.score);
+      } else {
+        alert('❌ Not quite! Type=' + game.currentOrder.type + ', Tortilla=' + game.currentOrder.tortilla + ', Toppings=' + game.currentOrder.toppings.join(', '));
+      }
+      game.orderIndex++;
+      document.getElementById('scoreDisplay').textContent = 'Score: ' + game.score + ' / 8';
+      loadNewOrder();
+    }
+  }
+});
+
+function gameLoop() {
+  if(game.location === 'prep') {
+    drawPrepStation();
+  } else if(game.location === 'assembly') {
+    drawAssemblyLine();
+  } else if(game.location === 'cashier') {
+    drawCashier();
+  }
+  requestAnimationFrame(gameLoop);
+}
+
+loadNewOrder();
+gameLoop();
+</script>
+</body>
+</html>
