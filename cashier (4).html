@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teddy's Cashier Game 💰</title>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Nunito', sans-serif;
+  background: linear-gradient(135deg, #8B4513, #D2B48C);
+  color: white;
+  min-height: 100vh;
+  padding: 20px;
+}
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+.title {
+  font-family: 'Bangers', cursive;
+  font-size: 48px;
+  text-align: center;
+  color: #FFD700;
+  letter-spacing: 3px;
+  margin-bottom: 20px;
+  text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+}
+
+.game-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.section {
+  background: rgba(255,255,255,0.1);
+  border: 3px solid #FFD700;
+  border-radius: 16px;
+  padding: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.section-title {
+  font-family: 'Bangers', cursive;
+  font-size: 24px;
+  color: #FFD700;
+  letter-spacing: 2px;
+  margin-bottom: 16px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.shelf {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.item-btn {
+  background: rgba(255,255,255,0.2);
+  border: 2px solid rgba(255,255,255,0.4);
+  border-radius: 12px;
+  padding: 12px;
+  cursor: pointer;
+  font-family: 'Bangers', cursive;
+  color: white;
+  font-size: 14px;
+  letter-spacing: 1px;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.item-btn:hover {
+  background: rgba(255,255,255,0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.item-btn.selected {
+  background: #FFD700;
+  color: #333;
+  border-color: #8B6914;
+  box-shadow: 0 0 20px rgba(255,215,0,0.5);
+}
+
+.item-emoji {
+  font-size: 24px;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.item-name {
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.item-price {
+  font-size: 11px;
+  color: rgba(255,255,255,0.7);
+}
+
+.order-box {
+  background: rgba(255,255,255,0.15);
+  border: 3px solid #FF6347;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.order-title {
+  font-family: 'Bangers', cursive;
+  font-size: 20px;
+  color: #FF6347;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+
+.order-items {
+  font-size: 14px;
+  color: white;
+  font-weight: 800;
+  line-height: 1.8;
+}
+
+.cart-box {
+  background: rgba(255,255,255,0.15);
+  border: 3px solid #00AA00;
+  border-radius: 12px;
+  padding: 16px;
+  min-height: 200px;
+}
+
+.cart-title {
+  font-family: 'Bangers', cursive;
+  font-size: 20px;
+  color: #00AA00;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+
+.cart-items {
+  font-size: 13px;
+  color: white;
+  font-weight: 800;
+  line-height: 1.8;
+}
+
+.item-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+
+.cart-total {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 2px solid #00AA00;
+  font-family: 'Bangers', cursive;
+  font-size: 18px;
+  color: #FFD700;
+  letter-spacing: 2px;
+  text-align: right;
+}
+
+.remove-btn {
+  background: #FF6347;
+  border: none;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.remove-btn:hover {
+  background: #CC0000;
+}
+
+.button-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.big-btn {
+  font-family: 'Bangers', cursive;
+  font-size: 20px;
+  letter-spacing: 2px;
+  padding: 16px;
+  border-radius: 10px;
+  border: 3px solid;
+  cursor: pointer;
+  font-weight: 900;
+  text-transform: uppercase;
+  transition: all 0.2s;
+}
+
+.ring-btn {
+  background: #00AA00;
+  color: white;
+  border-color: #006600;
+  box-shadow: 0 5px 0 #006600;
+}
+
+.ring-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 0 #006600;
+}
+
+.clear-btn {
+  background: #FF6347;
+  color: white;
+  border-color: #CC0000;
+  box-shadow: 0 5px 0 #CC0000;
+}
+
+.clear-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 0 #CC0000;
+}
+
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 40px;
+  border-radius: 20px;
+  text-align: center;
+  z-index: 1000;
+  display: none;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+  max-width: 500px;
+}
+
+.modal.show {
+  display: block;
+  animation: popIn 0.3s ease-out;
+}
+
+@keyframes popIn {
+  0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+.modal h1 {
+  font-family: 'Bangers', cursive;
+  font-size: 48px;
+  letter-spacing: 3px;
+  margin-bottom: 16px;
+}
+
+.modal p {
+  font-family: 'Bangers', cursive;
+  font-size: 20px;
+  color: #333;
+  letter-spacing: 2px;
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.modal-btn {
+  font-family: 'Bangers', cursive;
+  font-size: 20px;
+  letter-spacing: 2px;
+  padding: 14px 32px;
+  background: #FFD700;
+  color: #333;
+  border: 3px solid #8B6914;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 5px 0 #8B6914;
+  transition: transform 0.15s;
+  font-weight: 900;
+  margin-top: 12px;
+}
+
+.modal-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 0 #8B6914;
+}
+
+.hud {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(0,0,0,0.8);
+  padding: 16px 24px;
+  border-radius: 12px;
+  border: 3px solid #FFD700;
+  font-family: 'Bangers', cursive;
+  color: #FFD700;
+  z-index: 100;
+}
+
+.hud-item {
+  font-size: 16px;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+</style>
+</head>
+<body>
+
+<div class="hud" id="hud">
+  <div class="hud-item">Level: <span id="level">1</span>/5</div>
+  <div class="hud-item">Money: $<span id="money">0</span></div>
+  <div class="hud-item" style="font-size: 20px; color: #FF6347;" id="timerDisplay">⏱️ Time: 60s</div>
+</div>
+
+<div class="container">
+  <div class="title">💰 TEDDY'S CASHIER GAME 💰</div>
+
+  <div class="game-grid">
+    <!-- SHELVES -->
+    <div class="section">
+      <div class="section-title">🛒 SHELVES</div>
+      <div id="shelves" class="shelf"></div>
+    </div>
+
+    <!-- ORDER -->
+    <div class="section">
+      <div class="order-box" id="orderBox">
+        <div class="order-title">😠 CUSTOMER WANTS:</div>
+        <div class="order-items" id="orderItems">Loading...</div>
+      </div>
+      <div style="font-size: 12px; color: rgba(255,255,255,0.6); font-weight: 800; text-align: center; line-height: 1.6;">
+        ⚠️ MEAN CUSTOMER!<br>
+        ONE CHANCE ONLY!<br>
+        GET IT WRONG = GAME OVER! 😠
+      </div>
+    </div>
+
+    <!-- CART -->
+    <div class="section">
+      <div class="cart-title">💳 YOUR REGISTER</div>
+      <div class="cart-box">
+        <div id="cartItems" class="cart-items">
+          <span style="color: rgba(255,255,255,0.5);">Pick items from shelves →</span>
+        </div>
+        <div class="cart-total" id="cartTotal">TOTAL: $0</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+    <button class="big-btn ring-btn" onclick="ringUp()">💳 RING UP!</button>
+    <button class="big-btn clear-btn" onclick="clearCart()">🗑️ CLEAR CART</button>
+  </div>
+</div>
+
+<div class="modal" id="resultModal">
+  <h1 id="resultTitle">✅ CORRECT!</h1>
+  <p id="resultMessage">Great job!</p>
+  <button class="modal-btn" onclick="nextLevel()">NEXT LEVEL</button>
+</div>
+
+<script>
+var items = [
+  { name: 'Gas', emoji: '⛽', price: 35 },
+  { name: 'Coffee', emoji: '☕', price: 3 },
+  { name: 'Energy Drink', emoji: '💪', price: 4 },
+  { name: 'Snack Bag', emoji: '🍿', price: 5 },
+  { name: 'Candy', emoji: '🍬', price: 2 },
+  { name: 'Soda', emoji: '🥤', price: 3 },
+  { name: 'Water', emoji: '💧', price: 2 },
+  { name: 'Chips', emoji: '🍟', price: 4 },
+  { name: 'Sandwich', emoji: '🥪', price: 8 },
+  { name: 'Hot Dog', emoji: '🌭', price: 5 },
+  { name: 'Donut', emoji: '🍩', price: 3 },
+  { name: 'Ice Cream', emoji: '🍦', price: 4 },
+];
+
+var customerOrders = [
+  { name: 'Angry Alice', items: ['Gas', 'Coffee'] },
+  { name: 'Grumpy Greg', items: ['Energy Drink', 'Chips', 'Soda'] },
+  { name: 'Cranky Carl', items: ['Gas', 'Sandwich', 'Donut'] },
+  { name: 'Salty Sally', items: ['Water', 'Snack Bag', 'Coffee', 'Candy'] },
+  { name: 'Bitter Bob', items: ['Gas', 'Hot Dog', 'Ice Cream', 'Soda', 'Chips'] },
+];
+
+var game = {
+  level: 1,
+  money: 0,
+  currentOrder: null,
+  cartItems: [],
+  gameOver: false,
+  timeLeft: 60,
+  timerInterval: null,
+  levelTimes: [60, 45, 30, 20, 10],
+};
+
+function initGame() {
+  game.currentOrder = customerOrders[game.level - 1];
+  game.cartItems = [];
+  game.gameOver = false;
+  game.timeLeft = game.levelTimes[game.level - 1];
+  
+  renderShelves();
+  renderOrder();
+  renderCart();
+  updateHUD();
+  startTimer();
+}
+
+function startTimer() {
+  if(game.timerInterval) clearInterval(game.timerInterval);
+  
+  game.timerInterval = setInterval(function() {
+    game.timeLeft--;
+    updateTimerDisplay();
+    
+    if(game.timeLeft <= 0) {
+      clearInterval(game.timerInterval);
+      timeUp();
+    }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  var timerDiv = document.getElementById('timerDisplay');
+  var color = game.timeLeft > 20 ? '#FFD700' : (game.timeLeft > 10 ? '#FFA500' : '#FF6347');
+  timerDiv.style.color = color;
+  timerDiv.textContent = '⏱️ Time: ' + game.timeLeft + 's';
+}
+
+function timeUp() {
+  game.gameOver = true;
+  document.getElementById('resultTitle').textContent = '⏰ TIME UP!';
+  document.getElementById('resultMessage').textContent = 'You ran out of time!<br>😠 Mean customer leaves angry!';
+  document.getElementById('resultModal').classList.add('show');
+}
+
+function renderShelves() {
+  var shelfDiv = document.getElementById('shelves');
+  shelfDiv.innerHTML = '';
+  
+  for(var i = 0; i < items.length; i++) {
+    var item = items[i];
+    var btn = document.createElement('button');
+    btn.className = 'item-btn';
+    btn.innerHTML = '<span class="item-emoji">' + item.emoji + '</span>' +
+                    '<span class="item-name">' + item.name + '</span>' +
+                    '<span class="item-price">$' + item.price + '</span>';
+    btn.dataset.itemName = item.name;
+    btn.onclick = function(e) { 
+      var itemName = e.target.closest('button').dataset.itemName;
+      var selectedItem = items.find(it => it.name === itemName);
+      addToCart(selectedItem); 
+    };
+    shelfDiv.appendChild(btn);
+  }
+}
+
+function renderOrder() {
+  var orderDiv = document.getElementById('orderItems');
+  var orderText = game.currentOrder.name + ' wants:<br><br>';
+  for(var i = 0; i < game.currentOrder.items.length; i++) {
+    var itemName = game.currentOrder.items[i];
+    var item = items.find(it => it.name === itemName);
+    orderText += item.emoji + ' ' + itemName + ' ($' + item.price + ')<br>';
+  }
+  orderDiv.innerHTML = orderText;
+}
+
+function addToCart(item) {
+  game.cartItems.push(item.name);
+  renderCart();
+}
+
+function removeFromCart(index) {
+  game.cartItems.splice(index, 1);
+  renderCart();
+}
+
+function renderCart() {
+  var cartDiv = document.getElementById('cartItems');
+  var cartTotalDiv = document.getElementById('cartTotal');
+  
+  if(game.cartItems.length === 0) {
+    cartDiv.innerHTML = '<span style="color: rgba(255,255,255,0.5);">Pick items from shelves →</span>';
+    cartTotalDiv.innerHTML = 'TOTAL: $0';
+    return;
+  }
+  
+  var html = '';
+  var total = 0;
+  
+  for(var i = 0; i < game.cartItems.length; i++) {
+    var itemName = game.cartItems[i];
+    var item = items.find(it => it.name === itemName);
+    total += item.price;
+    html += '<div class="item-row">' +
+            '<span>' + item.emoji + ' ' + item.name + ' $' + item.price + '</span>' +
+            '<button class="remove-btn" onclick="removeFromCart(' + i + ')">Remove</button>' +
+            '</div>';
+  }
+  
+  cartDiv.innerHTML = html;
+  cartTotalDiv.innerHTML = 'TOTAL: $' + total;
+}
+
+function clearCart() {
+  game.cartItems = [];
+  renderCart();
+}
+
+function ringUp() {
+  if(game.gameOver) return;
+  
+  clearInterval(game.timerInterval);
+  
+  // Check if correct
+  var correctItems = game.currentOrder.items.slice().sort();
+  var playerItems = game.cartItems.slice().sort();
+  
+  var correctTotal = 0;
+  for(var i = 0; i < correctItems.length; i++) {
+    var item = items.find(it => it.name === correctItems[i]);
+    correctTotal += item.price;
+  }
+  
+  var playerTotal = 0;
+  for(var i = 0; i < playerItems.length; i++) {
+    var item = items.find(it => it.name === playerItems[i]);
+    playerTotal += item.price;
+  }
+  
+  var itemsMatch = JSON.stringify(correctItems) === JSON.stringify(playerItems);
+  var priceMatch = playerTotal === correctTotal;
+  
+  if(itemsMatch && priceMatch) {
+    // CORRECT!
+    game.money += correctTotal;
+    document.getElementById('resultTitle').textContent = '✅ CORRECT!';
+    document.getElementById('resultMessage').textContent = game.currentOrder.name + ' is happy! +$' + correctTotal;
+    document.getElementById('resultModal').classList.add('show');
+  } else {
+    // WRONG!
+    game.gameOver = true;
+    document.getElementById('resultTitle').textContent = '❌ GAME OVER!';
+    var msg = !itemsMatch ? 'Wrong items!' : 'Wrong total!';
+    msg += '<br>Should be: ' + correctItems.join(', ') + '<br>Total: $' + correctTotal;
+    document.getElementById('resultMessage').innerHTML = msg + '<br><br>😠 Mean customer leaves!';
+    document.getElementById('resultModal').classList.add('show');
+  }
+}
+
+function nextLevel() {
+  document.getElementById('resultModal').classList.remove('show');
+  
+  if(game.gameOver) {
+    // Restart same level
+    initGame();
+  } else {
+    // Next level
+    game.level++;
+    if(game.level > 5) {
+      alert('🎉 YOU WIN! All 5 customers served!\nTotal Money: $' + game.money);
+      game.level = 1;
+      game.money = 0;
+      initGame();
+    } else {
+      initGame();
+    }
+  }
+}
+
+function updateHUD() {
+  document.getElementById('level').textContent = game.level;
+  document.getElementById('money').textContent = game.money;
+}
+
+initGame();
+</script>
+</body>
+</html>
