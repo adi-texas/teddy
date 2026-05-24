@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Employee Portal - Teddy's Rewards</title>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Nunito', sans-serif;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  min-height: 100vh;
+  padding: 20px;
+  color: white;
+}
+
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.logo {
+  font-size: 60px;
+  margin-bottom: 10px;
+}
+
+.title {
+  font-family: 'Bangers', cursive;
+  font-size: 36px;
+  color: #FFD700;
+  letter-spacing: 3px;
+  margin-bottom: 5px;
+}
+
+.subtitle {
+  color: rgba(255,255,255,0.6);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.card {
+  background: rgba(255,255,255,0.1);
+  border: 2px solid rgba(255,255,255,0.2);
+  border-radius: 20px;
+  padding: 30px;
+  margin-bottom: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.section-title {
+  font-family: 'Bangers', cursive;
+  font-size: 24px;
+  color: #FFD700;
+  letter-spacing: 2px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.input-group {
+  margin-bottom: 20px;
+}
+
+.label {
+  display: block;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 8px;
+}
+
+.input {
+  width: 100%;
+  padding: 15px 20px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-radius: 12px;
+  background: rgba(255,255,255,0.05);
+  color: white;
+  font-size: 18px;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  transition: all 0.2s;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #FFD700;
+  background: rgba(255,255,255,0.1);
+}
+
+.input::placeholder {
+  color: rgba(255,255,255,0.4);
+}
+
+.btn {
+  width: 100%;
+  padding: 18px;
+  background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-family: 'Bangers', cursive;
+  font-size: 24px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  box-shadow: 0 6px 0 #059669;
+  transition: all 0.2s;
+  margin-top: 10px;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 0 #059669;
+}
+
+.btn:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 0 #059669;
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+  box-shadow: 0 6px 0 #1d4ed8;
+}
+
+.btn-secondary:hover {
+  box-shadow: 0 8px 0 #1d4ed8;
+}
+
+.btn-secondary:active {
+  box-shadow: 0 4px 0 #1d4ed8;
+}
+
+.message {
+  padding: 15px;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: 800;
+  margin-bottom: 20px;
+  display: none;
+}
+
+.message.show {
+  display: block;
+}
+
+.message.success {
+  background: rgba(16, 185, 129, 0.2);
+  border: 2px solid #10b981;
+  color: #34d399;
+}
+
+.message.error {
+  background: rgba(239, 68, 68, 0.2);
+  border: 2px solid #ef4444;
+  color: #f87171;
+}
+
+.customer-info {
+  background: rgba(16, 185, 129, 0.1);
+  border: 2px solid #10b981;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  display: none;
+}
+
+.customer-info.show {
+  display: block;
+}
+
+.customer-name {
+  font-size: 20px;
+  font-weight: 800;
+  color: #34d399;
+  margin-bottom: 5px;
+}
+
+.customer-points {
+  font-size: 16px;
+  color: rgba(255,255,255,0.8);
+}
+
+#video-container {
+  width: 100%;
+  height: 300px;
+  background: #000;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 15px;
+  position: relative;
+}
+
+#video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.scanner-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 250px;
+  height: 250px;
+  border: 3px solid #FFD700;
+  border-radius: 12px;
+  box-shadow: 0 0 0 9999px rgba(0,0,0,0.5);
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <div class="logo">👷⭐</div>
+    <div class="title">EMPLOYEE PORTAL</div>
+    <div class="subtitle">Teddy's Rewards System</div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">📱 SCAN CUSTOMER QR CODE</div>
+    <div id="video-container">
+      <video id="video" playsinline></video>
+      <div class="scanner-overlay"></div>
+    </div>
+    <button class="btn btn-secondary" onclick="startScanner()">📷 START SCANNER</button>
+    <button class="btn btn-secondary" onclick="stopScanner()" style="margin-top:10px;">⏹️ STOP SCANNER</button>
+  </div>
+
+  <div id="message" class="message"></div>
+  
+  <div id="customerInfo" class="customer-info">
+    <div class="customer-name" id="customerName"></div>
+    <div class="customer-points" id="customerPoints"></div>
+  </div>
+
+  <div class="card" id="addPointsCard" style="display:none;">
+    <div class="section-title">💰 ADD PURCHASE</div>
+    
+    <div class="input-group">
+      <label class="label">Purchase Amount ($)</label>
+      <input type="number" class="input" id="amountInput" placeholder="0.00" min="0" step="0.01">
+    </div>
+
+    <button class="btn" onclick="addPoints()">➕ ADD POINTS</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script>
+const SUPABASE_URL = 'https://mzfdgzwdnvntefgnlnoi.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im16ZmRnendkbnZudGVmZ25sbm9pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzODAxMzYsImV4cCI6MjA5MTk1NjEzNn0.IuYLD1R4Wr8bAOvVSIO2KdqXPYVw2f77bxMUty7pQ7c';
+
+let supabaseClient;
+let html5QrCode;
+let currentCustomerEmail = '';
+
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    if(window.supabase && window.supabase.createClient) {
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    }
+  }, 500);
+});
+
+function showMessage(text, type) {
+  var msg = document.getElementById('message');
+  msg.textContent = text;
+  msg.className = 'message show ' + type;
+}
+
+function startScanner() {
+  if(!html5QrCode) {
+    html5QrCode = new Html5Qrcode("video-container");
+  }
+  
+  html5QrCode.start(
+    { facingMode: "environment" },
+    { fps: 10, qrbox: 250 },
+    onScanSuccess
+  ).catch(err => {
+    showMessage('❌ Camera error: ' + err, 'error');
+  });
+}
+
+function stopScanner() {
+  if(html5QrCode) {
+    html5QrCode.stop().then(() => {
+      showMessage('📷 Scanner stopped', 'success');
+    });
+  }
+}
+
+function onScanSuccess(decodedText) {
+  // Stop scanner after successful scan
+  stopScanner();
+  
+  // The QR code contains customer email
+  currentCustomerEmail = decodedText;
+  
+  // Load customer data
+  loadCustomer(currentCustomerEmail);
+}
+
+function loadCustomer(email) {
+  // For demo: just show customer info
+  document.getElementById('customerName').textContent = '📧 ' + email;
+  
+  // Get their current points
+  var points = parseInt(localStorage.getItem('rewards_' + email) || '0');
+  var dollarValue = (points / 100).toFixed(2);
+  
+  document.getElementById('customerPoints').textContent = 
+    '⭐ Current Points: ' + points + ' ($' + dollarValue + ' off)';
+  
+  document.getElementById('customerInfo').classList.add('show');
+  document.getElementById('addPointsCard').style.display = 'block';
+  
+  showMessage('✅ Customer loaded!', 'success');
+}
+
+function addPoints() {
+  var amount = parseFloat(document.getElementById('amountInput').value);
+  
+  if(!amount || amount <= 0) {
+    showMessage('⚠️ Enter a valid amount!', 'error');
+    return;
+  }
+  
+  if(!currentCustomerEmail) {
+    showMessage('⚠️ Scan customer QR first!', 'error');
+    return;
+  }
+  
+  // $1 = 1 point
+  var pointsToAdd = Math.floor(amount);
+  
+  // Get current points
+  var currentPoints = parseInt(localStorage.getItem('rewards_' + currentCustomerEmail) || '0');
+  var newPoints = currentPoints + pointsToAdd;
+  
+  // Save new points
+  localStorage.setItem('rewards_' + currentCustomerEmail, newPoints);
+  localStorage.setItem('teddys_rewards_points', newPoints); // For customer's own view
+  
+  // Update display
+  var dollarValue = (newPoints / 100).toFixed(2);
+  document.getElementById('customerPoints').textContent = 
+    '⭐ Current Points: ' + newPoints + ' ($' + dollarValue + ' off)';
+  
+  // Clear input
+  document.getElementById('amountInput').value = '';
+  
+  showMessage('🎉 Added ' + pointsToAdd + ' points! Customer now has ' + newPoints + ' points!', 'success');
+}
+</script>
+
+</body>
+</html>
