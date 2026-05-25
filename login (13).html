@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teddy's Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Nunito', sans-serif;
+  background: linear-gradient(160deg, #001a4d, #003d99, #0066cc);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.container {
+  background: rgba(0,0,0,0.7);
+  border: 4px solid #FFD700;
+  border-radius: 24px;
+  padding: 40px;
+  width: 100%;
+  max-width: 450px;
+  backdrop-filter: blur(10px);
+}
+.title {
+  font-family: 'Bangers', cursive;
+  font-size: 36px;
+  color: #FFD700;
+  text-align: center;
+  letter-spacing: 3px;
+  margin-bottom: 8px;
+  text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+}
+.subtitle {
+  text-align: center;
+  color: rgba(255,255,255,0.6);
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 24px;
+}
+.tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+.tab {
+  background: rgba(255,255,255,0.1);
+  border: 2px solid rgba(255,255,255,0.3);
+  color: rgba(255,255,255,0.6);
+  padding: 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: 'Bangers', cursive;
+  font-size: 16px;
+  letter-spacing: 2px;
+  transition: all 0.3s;
+}
+.tab.active {
+  background: #FFD700;
+  color: #333;
+  border-color: #FFD700;
+  box-shadow: 0 0 20px rgba(255,215,0,0.5);
+}
+.form-group {
+  margin-bottom: 16px;
+}
+label {
+  display: block;
+  color: rgba(255,255,255,0.8);
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+input {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.1);
+  color: white;
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px;
+  transition: all 0.3s;
+}
+input:focus {
+  outline: none;
+  border-color: #FFD700;
+  box-shadow: 0 0 10px rgba(255,215,0,0.3);
+  background: rgba(255,255,255,0.15);
+}
+input::placeholder {
+  color: rgba(255,255,255,0.4);
+}
+.btn {
+  width: 100%;
+  padding: 14px;
+  background: #FFD700;
+  color: #333;
+  border: 3px solid #8B6914;
+  border-radius: 10px;
+  font-family: 'Bangers', cursive;
+  font-size: 18px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  font-weight: 900;
+  box-shadow: 0 6px 0 #8B6914;
+  transition: transform 0.15s;
+  margin-top: 16px;
+}
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 0 #8B6914;
+}
+.google-btn {
+  background: white;
+  color: #333;
+  border-color: #ddd;
+  box-shadow: 0 6px 0 #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.google-btn:hover {
+  box-shadow: 0 8px 0 #ddd;
+}
+.message {
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-weight: 800;
+  text-align: center;
+  display: none;
+}
+.message.show {
+  display: block;
+}
+.message.success {
+  background: rgba(0,170,0,0.3);
+  color: #00AA00;
+  border: 2px solid #00AA00;
+}
+.message.error {
+  background: rgba(255,99,71,0.3);
+  color: #FF6347;
+  border: 2px solid #FF6347;
+}
+.or-divider {
+  text-align: center;
+  margin: 20px 0;
+  color: rgba(255,255,255,0.5);
+  font-weight: 800;
+  font-size: 12px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="title">TEDDY'S LOGIN</div>
+  <div class="subtitle">Sign in to your account</div>
+
+  <div class="tabs">
+    <button class="tab" onclick="showTab('employee')">👷 EMPLOYEE</button>
+    <button class="tab active" onclick="showTab('customer')">🛒 CUSTOMER</button>
+  </div>
+
+  <div id="message" class="message"></div>
+
+  <div class="form-group">
+    <label id="usernameLabel">EMAIL ADDRESS</label>
+    <input type="text" id="username" placeholder="your@email.com">
+  </div>
+
+  <div class="form-group" id="passwordGroup">
+    <label>PASSWORD</label>
+    <input type="password" id="password" placeholder="Enter password">
+  </div>
+
+  <button class="btn" onclick="signIn()">🔒 SIGN IN</button>
+  
+  <div class="or-divider" id="orDivider" style="display: none;">OR</div>
+  
+  <button class="google-btn btn" id="googleBtn" onclick="signInWithGoogle()" style="display: none;">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="20" height="20">
+      <path fill="#4285F4" d="M24 9.5c3.9 0 6.9 1.7 8.5 3.1l6.2-6.2C34.7 2.9 29.8 1 24 1 14.7 1 6.9 6.5 3.4 14.2l7.2 5.6C12.3 14.1 17.6 9.5 24 9.5z"/>
+      <path fill="#34A853" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.4 5.5-5 7.2l7.7 6c4.5-4.1 7.1-10.2 7.1-17.7z"/>
+      <path fill="#FBBC05" d="M10.6 28.8c-1-3-1-6.2 0-9.2L3.4 14C1.2 18.2 0 22.9 0 28s1.2 9.8 3.4 14l7.2-5.6z"/>
+      <path fill="#EA4335" d="M24 47c5.8 0 10.7-1.9 14.3-5.2l-7.7-6c-2 1.3-4.5 2.1-6.6 2.1-6.4 0-11.7-4.6-13.4-10.7l-7.2 5.6C6.9 41.5 14.7 47 24 47z"/>
+    </svg>
+    SIGN IN WITH GOOGLE
+  </button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_CONFIG = {
+  url: 'https://mzfdgzwdnvntefgnlnoi.supabase.co',
+  key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im16ZmRnendkbnZudGVmZ25sbm9pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzODAxMzYsImV4cCI6MjA5MTk1NjEzNn0.IuYLD1R4Wr8bAOvVSIO2KdqXPYVw2f77bxMUty7pQ7c'
+};
+
+let supabaseClient;
+let currentTab = 'customer';
+
+// Initialize Supabase
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    if(window.supabase && window.supabase.createClient) {
+      supabaseClient = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.key);
+    }
+  }, 500);
+});
+
+function showTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  
+  if(tab === 'employee') {
+    document.getElementById('usernameLabel').textContent = 'USERNAME';
+    document.getElementById('username').placeholder = 'Enter username';
+    document.getElementById('passwordGroup').style.display = 'block';
+    document.getElementById('googleBtn').style.display = 'none';
+    document.getElementById('orDivider').style.display = 'none';
+  } else {
+    document.getElementById('usernameLabel').textContent = 'EMAIL ADDRESS';
+    document.getElementById('username').placeholder = 'your@email.com';
+    document.getElementById('passwordGroup').style.display = 'none';
+    document.getElementById('googleBtn').style.display = 'flex';
+    document.getElementById('orDivider').style.display = 'block';
+  }
+}
+
+function showMessage(text, type) {
+  var msg = document.getElementById('message');
+  msg.textContent = text;
+  msg.className = 'message show ' + type;
+}
+
+async function signIn() {
+  var username = document.getElementById('username').value;
+  var password = document.getElementById('password').value;
+  
+  if(!username) {
+    showMessage('⚠️ Enter your ' + (currentTab === 'employee' ? 'username' : 'email'), 'error');
+    return;
+  }
+  
+  if(currentTab === 'employee' && !password) {
+    showMessage('⚠️ Enter your password', 'error');
+    return;
+  }
+  
+  if(!supabaseClient) {
+    showMessage('⚠️ Loading... wait and try again', 'error');
+    return;
+  }
+  
+  try {
+    // For customers: use Supabase OTP (one-time password) sent to email
+    if(currentTab === 'customer') {
+      showMessage('📧 Sending code to ' + username + '...', 'success');
+      
+      const { data, error } = await supabaseClient.auth.signInWithOtp({
+        email: username,
+        options: {
+          shouldCreateUser: true,
+        }
+      });
+      
+      if(error) {
+        showMessage('❌ Error: ' + error.message, 'error');
+        return;
+      }
+      
+      showMessage('✅ Code sent! Check your email and enter the 6-digit code', 'success');
+      
+      // Ask for the code
+      setTimeout(() => {
+        var enteredCode = prompt('Enter the 6-digit code from your email:');
+        
+        if(!enteredCode) {
+          showMessage('❌ No code entered', 'error');
+          return;
+        }
+        
+        // Verify the OTP code
+        supabaseClient.auth.verifyOtp({
+          email: username,
+          token: enteredCode,
+          type: 'email'
+        }).then(({ data, error }) => {
+          if(error) {
+            showMessage('❌ Incorrect code: ' + error.message, 'error');
+          } else {
+            localStorage.setItem('teddys_loggedin', 'customer');
+            localStorage.setItem('customer_email', username);
+            showMessage('✅ Success!', 'success');
+            setTimeout(() => window.location.href = 'index.html', 1000);
+          }
+        });
+      }, 2000);
+      
+    } else {
+      // For employees: check username AND password
+      var { data, error } = await supabaseClient
+        .from('employees')
+        .select('*')
+        .eq('username', username)
+        .eq('password', password)
+        .single();
+      
+      if(error || !data) {
+        showMessage('❌ Incorrect login', 'error');
+        return;
+      }
+      
+      localStorage.setItem('teddys_loggedin', 'employee');
+      localStorage.setItem('employee_name', data.full_name);
+      showMessage('✅ Success!', 'success');
+      setTimeout(() => window.location.href = 'index.html', 1000);
+    }
+    
+  } catch(e) {
+    showMessage('❌ Error: ' + e.message, 'error');
+  }
+}
+
+async function signInWithGoogle() {
+  if(currentTab === 'employee') {
+    showMessage('⚠️ Employees cannot use Google sign-in', 'error');
+    return;
+  }
+  
+  if(!supabaseClient) {
+    showMessage('⚠️ Loading... wait and try again', 'error');
+    return;
+  }
+  
+  try {
+    const { data, error } = await supabaseClient.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: 'https://teddysplumgrove.com/index.html'
+      }
+    });
+    
+    if(error) {
+      showMessage('❌ Google sign-in failed: ' + error.message, 'error');
+      return;
+    }
+    
+    localStorage.setItem('teddys_loggedin', 'customer');
+    
+  } catch(e) {
+    showMessage('❌ Error: ' + e.message, 'error');
+  }
+}
+
+// Show Google button for customers by default
+if(currentTab === 'customer') {
+  document.getElementById('googleBtn').style.display = 'flex';
+  document.getElementById('orDivider').style.display = 'block';
+  document.getElementById('passwordGroup').style.display = 'none';
+}
+</script>
+</body>
+</html>
